@@ -1,18 +1,18 @@
-﻿using System;
+﻿using Serilog.Core;
+using Serilog.Debugging;
+using Serilog.Events;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Serilog.Core;
-using Serilog.Debugging;
-using Serilog.Events;
 
 namespace Masking.Serilog.ByMasking
 {
     internal class DestructureByMaskingPolicy : IDestructuringPolicy
     {
         private readonly IDictionary<Type, Properties> cache = new Dictionary<Type, Properties>();
-        private readonly MaskingOptions maskingOptions = new MaskingOptions();        
+        private readonly MaskingOptions maskingOptions = new MaskingOptions();
         private readonly object sync = new object();
 
         public DestructureByMaskingPolicy(params string[] maskedProperties)
@@ -64,16 +64,16 @@ namespace Masking.Serilog.ByMasking
         {
             IEnumerable<PropertyInfo> typeProperties = type.GetRuntimeProperties()
                 .Where(p => p.CanRead);
-            
-            var entry = new Properties(typeProperties.ToArray(), new PropertyInfo[]{});
+
+            var entry = new Properties(typeProperties.ToArray(), new PropertyInfo[] { });
 
             return entry;
         }
-        
+
         private Properties GetCachedProperties(Type type)
         {
             Properties entry;
-            
+
             lock (sync)
             {
                 if (cache.TryGetValue(type, out entry))
@@ -83,14 +83,14 @@ namespace Masking.Serilog.ByMasking
             }
 
             IEnumerable<PropertyInfo> typeProperties = type.GetRuntimeProperties()
-                .Where(p => p.CanRead);
+                .Where(p => p.CanRead && !maskingOptions.ExcludedModuleNames.Contains(p.Module.Name));
 
             if (maskingOptions.ExcludeStaticProperties)
             {
                 typeProperties = typeProperties
                     .Where(p => !p.GetMethod.IsStatic);
             }
-            
+
             PropertyInfo[] includedProps = typeProperties
                 .Where(p => !ShouldMask(p))
                 .ToArray();
@@ -100,7 +100,7 @@ namespace Masking.Serilog.ByMasking
                 .ToArray();
 
             entry = new Properties(includedProps, maskedProps);
-            
+
             lock (sync)
             {
                 cache[type] = entry;
@@ -110,15 +110,15 @@ namespace Masking.Serilog.ByMasking
         }
 
         private bool ShouldMask(PropertyInfo p) => maskingOptions.PropertyNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase);
-        
+
         private bool ShouldIgnoreMasking(Type t) => maskingOptions.IgnoredNamespaces.Contains(t.Namespace, StringComparer.OrdinalIgnoreCase);
-        
+
         private LogEventPropertyValue Structure(object o, ILogEventPropertyValueFactory propertyValueFactory)
         {
             var structureProperties = new List<LogEventProperty>();
 
             var type = o.GetType();
-            
+
             var properties = ShouldIgnoreMasking(type) ? GetProperties(type) : GetCachedProperties(type);
 
             foreach (var p in properties.ToInclude)

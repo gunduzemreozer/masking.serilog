@@ -10,7 +10,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Collections.Generic;
 
 namespace Masking.Serilog.ByMasking
@@ -34,10 +33,15 @@ namespace Masking.Serilog.ByMasking
         /// A flag to specify whether static properties should be included when Destructuring the object.
         /// </summary>
         public bool ExcludeStaticProperties { get; set; } = false;
-        
+
         /// <summary>
         /// List of namespaces for which masking will be ignored.
         /// </summary>
         public List<string> IgnoredNamespaces { get; } = new List<string>();
+
+        /// <summary>
+        /// List of Module Names for which masking will be ignored.
+        /// </summary>
+        public List<string> ExcludedModuleNames { get; } = new List<string>(new[] { "System.Private.CoreLib.dll" });
     }
 }
