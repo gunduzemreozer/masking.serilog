@@ -48,7 +48,8 @@ Log.Logger = new LoggerConfiguration()
     .Destructure.ByMaskingProperties(opts =>
     {
         opts.PropertyNames.Add("Password");
-        opts.PropertyNames.Add("Token");        opts.ExcludedModuleNames.Add("System.Private.CoreLib.dll")
+        opts.PropertyNames.Add("Token");
+        opts.ExcludedModuleNames.Add("System.Private.CoreLib.dll");
         opts.Mask = "******";
         opts.IgnoredNamespaces.Add("System.Net.Http");
     })
