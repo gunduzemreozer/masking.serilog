@@ -1,6 +1,8 @@
 # Masking.SerilogPD 🎭
 This project is forked from and *ExcludedModuleNames* property added to MaskingOptions to avoid deadlock at Reflection properties. Original repo address is [here.](https://github.com/evjenio/masking.serilog)
 
+**Note:** "System.Private.CoreLib.dll" is added to *ExcludedModuleNames* property as a default.
+
 Masking sensitive information during logging to Serilog by hiding individual properties.
 
 ![.NET](https://github.com/evjenio/masking.serilog/workflows/.NET/badge.svg) [![NuGet version](https://badge.fury.io/nu/Masking.Serilog.svg)](https://www.nuget.org/packages/Masking.SerilogPD)
@@ -49,8 +51,8 @@ Log.Logger = new LoggerConfiguration()
     {
         opts.PropertyNames.Add("Password");
         opts.PropertyNames.Add("Token");
-        opts.ExcludedModuleNames.Add("System.Private.CoreLib.dll");
         opts.Mask = "******";
+        opts.ExcludedModuleNames.Add("System.Private.CoreLib.dll");
         opts.IgnoredNamespaces.Add("System.Net.Http");
     })
     .CreateLogger()
