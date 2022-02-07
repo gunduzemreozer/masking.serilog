@@ -1,12 +1,14 @@
-# Masking.Serilog 🎭
+# Masking.SerilogPD 🎭
+This project is forked from and *ExcludedModuleNames* property added to MaskingOptions to avoid deadlock at Reflection properties. Original repo address is [here.](https://github.com/evjenio/masking.serilog)
+
 Masking sensitive information during logging to Serilog by hiding individual properties.
 
-![.NET](https://github.com/evjenio/masking.serilog/workflows/.NET/badge.svg) [![NuGet version](https://badge.fury.io/nu/Masking.Serilog.svg)](https://badge.fury.io/nu/Masking.Serilog)
+![.NET](https://github.com/evjenio/masking.serilog/workflows/.NET/badge.svg) [![NuGet version](https://badge.fury.io/nu/Masking.Serilog.svg)](https://www.nuget.org/packages/Masking.SerilogPD)
 
 Install from NuGet:
 
 ```powershell
-Install-Package Masking.Serilog
+Install-Package Masking.SerilogPD
 ```
 
 Mark properties to mask:
@@ -38,21 +40,19 @@ Log.Information("Logged on {@User}", new User { Username = "sudo", Password = "S
 // Prints `Logged on User { Username: "sudo", Password: "******" }`
 ```
 
-You can ignore masking for given namespaces by including them within the Masking Options configuration, as shown in the example below. 
-This is especially helpful when dealing with complex objects which often results in performance issues.
+You can ignore masking for given namespaces by including them within the Masking Options configuration, as shown in the example below. 
+This is especially helpful when dealing with complex objects which often results in performance issues.
 
 ```csharp
 Log.Logger = new LoggerConfiguration()
     .Destructure.ByMaskingProperties(opts =>
     {
         opts.PropertyNames.Add("Password");
-        opts.PropertyNames.Add("Token");
+        opts.PropertyNames.Add("Token");        opts.ExcludedModuleNames.Add("System.Private.CoreLib.dll")
         opts.Mask = "******";
         opts.IgnoredNamespaces.Add("System.Net.Http");
     })
     .CreateLogger()
 ```
 
-Please note that this is an explicit whitelist implementation, this helps to avoid mistakes resulting in exposure of sensitive data.
-
-
+Please note that this is an explicit whitelist implementation, this helps to avoid mistakes resulting in exposure of sensitive data.
